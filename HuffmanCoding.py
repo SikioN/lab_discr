@@ -1,4 +1,7 @@
 from collections import Counter
+from parsep import create_parser
+import sys
+
 
 class Node:
     def __init__(self, value, left=None, right=None):
@@ -79,27 +82,48 @@ def decode(string: str, code_dict: dict) -> str:
 
     return res
 
+
 if __name__ == '__main__':
 
-    with open("input_file.txt", "r") as file:
-        my_string = "".join(file)
-    tree = get_tree(my_string)
+    warning_message = "\033[01;38;05;196mWarning: Incorrect data\u001B[0m"
 
-    # with open("output_file.bin", "wb") as file:
-    #     file.write("abc".encode())
-        # s = "abc".encode()
-    # print(s)
+    parser = create_parser()
+    namespace = parser.parse_args(sys.argv[1:])
 
-    codes = get_code(tree)
-    print(f"Шифр: {codes}")
+    if namespace.encode is not False:
 
-    coding_str = encoder(my_string, codes)
-    with open("output_file.bin", "wb") as file:
-        # file.write(coding_str.encode())
-        file.write(bytes(coding_str, encoding='utf-8'))
-    print("Сжатая строка: ", coding_str)
+        try:
 
+            file = open(namespace.encode[0], "r")
+            my_string = "".join(file)
+            tree = get_tree(my_string)
+            codes = get_code(tree)
+            coding_str = encoder(my_string, codes)
+            file.close()
+            file = open(namespace.encode[1], "w")
+            encode_string = f"{len(codes)} {codes} \n{coding_str}"
+            file.write(encode_string)
 
-    decoding_str = decode(coding_str, codes)
-    print("Исходная строка: ", decoding_str)
+        except:
+            print(warning_message)
 
+    elif namespace.decode is not False:
+
+        try:
+
+            file = open(namespace.decode[0], "r")
+            my_string = " ".join(file)
+            codes = eval(my_string[my_string.find("{"): my_string.find("}") + 1])
+            decoding_string = decode(my_string[my_string.find("}") + 1:].strip(), codes)
+            file.close()
+            file = open(namespace.decode[1], "w")
+            answer = f"{decoding_string}"
+            file.write(answer)
+
+        except:
+            print(warning_message)
+
+    else:
+        print(warning_message)
+
+    exit()
