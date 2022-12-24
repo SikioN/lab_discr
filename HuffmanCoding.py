@@ -1,4 +1,7 @@
+import struct
 from collections import Counter
+import pickle
+
 from parsep import create_parser
 import sys
 
@@ -100,9 +103,13 @@ if __name__ == '__main__':
             codes = get_code(tree)
             coding_str = encoder(my_string, codes)
             file.close()
-            file = open(namespace.encode[1], "w")
-            encode_string = f"{len(codes)} {codes} \n{coding_str}"
-            file.write(encode_string)
+
+            file = open(namespace.encode[1].replace("txt", "bin"), "wb")
+            pickle.dump(f"{len(codes)} {codes}", file)
+            pickle.dump(int(coding_str, 2), file)
+
+            # encode_string = f"{len(codes)} {codes} \n{coding_str}"
+            # file.write(encode_string)
 
         except:
             print(warning_message)
@@ -111,14 +118,16 @@ if __name__ == '__main__':
 
         try:
 
-            file = open(namespace.decode[0], "r")
-            my_string = " ".join(file)
-            codes = eval(my_string[my_string.find("{"): my_string.find("}") + 1])
-            decoding_string = decode(my_string[my_string.find("}") + 1:].strip(), codes)
-            file.close()
-            file = open(namespace.decode[1], "w")
-            answer = f"{decoding_string}"
-            file.write(answer)
+            file = open(namespace.decode[0].replace("txt", "bin"), "rb")
+            print(pickle.load(file))
+
+            # my_string = " ".join(file)
+            # codes = eval(my_string[my_string.find("{"): my_string.find("}") + 1])
+            # decoding_string = decode(my_string[my_string.find("}") + 1:].strip(), codes)
+            # file.close()
+            # file = open(namespace.decode[1], "w")
+            # answer = f"{decoding_string}"
+            # file.write(answer)
 
         except:
             print(warning_message)
